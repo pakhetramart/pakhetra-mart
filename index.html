@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pakhetra Mart - Mere Area Ki Apni Dukaan</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
+
+    <!-- MAIN APP WRAPPER -->
+    <div class="max-w-md mx-auto min-h-screen bg-white shadow-xl relative flex flex-col pb-24">
+        
+        <!-- HEADER SECTION -->
+        <header class="sticky top-0 z-40 bg-white border-b border-gray-100 p-4 shadow-sm">
+            <!-- Delivery Status & Brand Name -->
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-start gap-2">
+                    <div class="p-2 bg-orange-100 text-orange-600 rounded-full mt-0.5">
+                        <i data-lucide="store" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-black text-xl uppercase tracking-wide text-orange-600">Pakhetra Mart</h2>
+                        <p class="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span> 
+                            Fast Local Delivery (Apne Area Me)
+                        </p>
+                    </div>
+                </div>
+                <div class="w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center text-orange-600">
+                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                <input 
+                    type="text" 
+                    id="search-input"
+                    placeholder="Search sabzi, doodh, snacks..." 
+                    class="w-full bg-gray-100 pl-10 pr-4 py-2.5 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+                >
+            </div>
+        </header>
+
+        <!-- CATEGORIES -->
+        <div class="sticky top-[125px] z-30 bg-white border-b border-gray-100 px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar">
+            <button onclick="filterCategory('all')" id="btn-all" class="cat-btn px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap bg-orange-500 text-white shadow-sm transition">
+                🌟 All Products
+            </button>
+            <button onclick="filterCategory('veg-fruits')" id="btn-veg-fruits" class="cat-btn px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                🥦 Sabzi & Fruits
+            </button>
+            <button onclick="filterCategory('dairy-eggs')" id="btn-dairy-eggs" class="cat-btn px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                🥛 Doodh & Dairy
+            </button>
+            <button onclick="filterCategory('munchies')" id="btn-munchies" class="cat-btn px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                🍿 Snacks & Chips
+            </button>
+        </div>
+
+        <!-- PRODUCT GRID -->
+        <main class="p-4 flex-1">
+            <h3 id="section-title" class="font-extrabold text-lg text-gray-800 mb-4">Taza Maal (Trending)</h3>
+            <div id="product-grid" class="grid grid-cols-2 gap-3">
+                <!-- Data loaded via JS -->
+            </div>
+        </main>
+
+        <!-- FLOATING BOTTOM CART BAR -->
+        <div id="cart-preview-bar" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100 shadow-[0_-8px_30px_rgb(0,0,0,0.06)] p-4 hidden z-40 transition-all transform duration-300">
+            <div class="bg-orange-600 rounded-xl p-3 flex items-center justify-between text-white cursor-pointer hover:bg-orange-700 transition shadow-md" onclick="toggleCartModal(true)">
+                <div class="flex items-center gap-3">
+                    <div class="bg-orange-700 p-2 rounded-lg relative">
+                        <i data-lucide="shopping-basket" class="w-5 h-5"></i>
+                        <span id="cart-count-badge" class="absolute -top-1.5 -right-1.5 bg-yellow-400 text-black font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                    </div>
+                    <div>
+                        <p id="cart-preview-qty" class="text-xs font-bold opacity-90">0 ITEMS</p>
+                        <p id="cart-preview-total" class="text-sm font-black">₹0</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 font-bold text-sm">
+                    Bag Dekho <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE-UP CART MODAL -->
+        <div id="cart-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end justify-center">
+            <div class="bg-white w-full max-w-md rounded-t-3xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+                
+                <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 text-orange-600"></i>
+                        <h3 class="font-extrabold text-base text-gray-800">Pakhetra Mart Basket</h3>
+                    </div>
+                    <button onclick="toggleCartModal(false)" class="p-2 hover:bg-gray-200 rounded-full transition">
+                        <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                    </button>
+                </div>
+
+                <div id="cart-items-list" class="p-4 overflow-y-auto flex-1 space-y-4">
+                    <!-- Items logic -->
+                </div>
+
+                <!-- Bill Details -->
+                <div class="bg-gray-50 p-4 border-t border-gray-100 space-y-2">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-gray-400 mb-1">Pura Hisab (Bill)</h4>
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <span>Saman ka Total</span>
+                        <span id="bill-subtotal" class="font-semibold">₹0</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <span>Delivery Charge</span>
+                        <span class="text-emerald-600 font-semibold">FREE</span>
+                    </div>
+                    <hr class="border-gray-200 my-2">
+                    <div class="flex justify-between text-base font-black text-gray-900">
+                        <span>Grand Total</span>
+                        <span id="bill-grand-total">₹0</span>
+                    </div>
+                </div>
+
+                <!-- Checkout Button (Simulated for local orders) -->
+                <div class="p-4 bg-white border-t border-gray-100">
+                    <button onclick="simulateCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 rounded-xl transition flex items-center justify-center gap-2 tracking-wide text-sm shadow-md">
+                        Order Confirm Karein <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT CONTROLLERS -->
+    <script>
+        // Pakhetra Mart Local Product Database
+        const products = [
+            { id: 1, name: "Fresh Tamatar (Tomato)", price: 30, weight: "1 kg", category: "veg-fruits", img: "🍅" },
+            { id: 2, name: "Aloo (Potato) Premium", price: 25, weight: "1 kg", category: "veg-fruits", img: "🥔" },
+            { id: 3, name: "Taza Onions (Pyaz)", price: 40, weight: "1 kg", category: "veg-fruits", img: "🧅" },
+            { id: 4, name: "Fresh Milk (Doodh)", price: 33, weight: "500 ml", category: "dairy-eggs", img: "🥛" },
+            { id: 5, name: "Amul Butter", price: 58, weight: "100 g", category: "dairy-eggs", img: "🧈" },
+            { id: 6, name: "Farm Fresh Eggs (Ande)", price: 50, weight: "6 Pcs", category: "dairy-eggs", img: "🥚" },
+            { id: 7, name: "Potato Chips", price: 20, weight: "1 Packet", category: "munchies", img: "🍿" },
+            { id: 8, name: "Chocolate Bar", price: 40, weight: "1 Pc", category: "munchies", img: "🍫" }
+        ];
+
+        let cart = {};
+        let activeCategory = 'all';
+        let searchQuery = '';
+
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
+
+            const filtered = products.filter(p => {
+                const matchesCategory = activeCategory === 'all' || p.category === activeCategory;
+                const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+
+            if(filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-2 text-center py-12 text-gray-400 text-sm">Saman nahi mila! Kuch aur search karein.</div>`;
+                return;
+            }
+
+            filtered.forEach(product => {
+                const qty = cart[product.id] || 0;
+                const card = document.createElement('div');
+                card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm hover:shadow-md transition";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="w-full h-24 bg-orange-50/50 rounded-xl mb-2 flex items-center justify-center text-4xl select-none">
+                            ${product.img}
+                        </div>
+                        <h4 class="font-bold text-sm text-gray-800 line-clamp-2 leading-tight">${product.name}</h4>
+                        <p class="text-xs text-gray-400 font-medium mt-0.5">${product.weight}</p>
+                    </div>
+                    <div class="flex items-center justify-between mt-3">
+                        <span class="font-black text-sm text-gray-900">₹${product.price}</span>
+                        <div id="btn-container-${product.id}">
+                            ${qty === 0 ? `
+                                <button onclick="updateCartItem(${product.id}, 1)" class="border border-orange-500 text-orange-600 bg-orange-50 hover:bg-orange-100 font-bold text-xs px-4 py-1.5 rounded-lg uppercase transition">
+                                    ADD
+                                </button>
+                            ` : `
+                                <div class="bg-orange-500 text-white flex items-center rounded-lg">
+                                    <button onclick="updateCartItem(${product.id}, ${qty - 1})" class="px-2 py-1 hover:bg-orange-600 font-bold text-xs rounded-l-lg">-</button>
+                                    <span class="px-2 font-black text-xs text-center">${qty}</span>
+                                    <button onclick="updateCartItem(${product.id}, ${qty + 1})" class="px-2 py-1 hover:bg-orange-600 font-bold text-xs rounded-r-lg">+</button>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateCartItem(id, qty) {
+            if (qty <= 0) { delete cart[id]; } else { cart[id] = qty; }
+            renderProducts();
+            calculateCartTotals();
+            renderCartModalList();
+        }
+
+        function calculateCartTotals() {
+            let totalItems = 0;
+            let subtotal = 0;
+
+            Object.keys(cart).forEach(id => {
+                const product = products.find(p => p.id == id);
+                if(product) {
+                    totalItems += cart[id];
+                    subtotal += (product.price * cart[id]);
+                }
+            });
+
+            const previewBar = document.getElementById('cart-preview-bar');
+            if (totalItems > 0) {
+                previewBar.classList.remove('hidden');
+                document.getElementById('cart-count-badge').innerText = totalItems;
+                document.getElementById('cart-preview-qty').innerText = `${totalItems} ITEM${totalItems > 1 ? 'S' : ''}`;
+                document.getElementById('cart-preview-total').innerText = `₹${subtotal}`;
+                document.getElementById('bill-subtotal').innerText = `₹${subtotal}`;
+                document.getElementById('bill-grand-total').innerText = `₹${subtotal}`;
+            } else {
+                previewBar.classList.add('hidden');
+                toggleCartModal(false);
+            }
+        }
+
+        function renderCartModalList() {
+            const listContainer = document.getElementById('cart-items-list');
+            listContainer.innerHTML = '';
+
+            const activeKeys = Object.keys(cart);
+            if(activeKeys.length === 0) {
+                listContainer.innerHTML = `<p class="text-center text-gray-400 py-6 text-sm">Aapka jhola khali h!</p>`;
+                return;
+            }
+
+            activeKeys.forEach(id => {
+                const item = products.find(p => p.id == id);
+                const qty = cart[id];
+                if(!item) return;
+
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-100";
+                row.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">${item.img}</span>
+                        <div>
+                            <h5 class="font-bold text-xs text-gray-800">${item.name}</h5>
+                            <p class="text-[11px] text-gray-400">₹${item.price} x ${qty}</p>
+                        </div>
+                    </div>
+                    <span class="font-black text-xs text-gray-800">₹${item.price * qty}</span>
+                `;
+                listContainer.appendChild(row);
+            });
+        }
+
+        function filterCategory(category) {
+            activeCategory = category;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.remove('bg-orange-500', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-gray-100', 'text-gray-600');
+            });
+
+            const activeBtn = document.getElementById(`btn-${category}`);
+            activeBtn.classList.remove('bg-gray-100', 'text-gray-600');
+            activeBtn.classList.add('bg-orange-500', 'text-white', 'shadow-sm');
+
+            const titleMap = {
+                'all': 'Taza Maal (Trending)',
+                'veg-fruits': '🥦 Tazi Sabzi aur Phal',
+                'dairy-eggs': '🥛 Doodh, Dahi aur Ande',
+                'munchies': '🍿 Snacks aur Chips'
+            };
+            document.getElementById('section-title').innerText = titleMap[category];
+            renderProducts();
+        }
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderProducts();
+        });
+
+        function toggleCartModal(isOpen) {
+            document.getElementById('cart-modal').classList.toggle('hidden', !isOpen);
+        }
+
+        function simulateCheckout() {
+            alert("🎉 Pakhetra Mart: Order Received! Hum jaldi hi aapko deliver karenge.");
+            cart = {};
+            calculateCartTotals();
+            renderProducts();
+            toggleCartModal(false);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
